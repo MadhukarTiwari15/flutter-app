@@ -1,3 +1,10 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -6,10 +13,9 @@ allprojects {
 }
 
 rootProject.buildDir = '../build'
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
     project.evaluationDependsOn(':app')
 }
 
@@ -18,9 +24,6 @@ tasks.register("clean", Delete) {
 }
 
 plugins {
-  // ...
-
-  // Add the dependency for the Google services Gradle plugin
-  id 'com.google.gms.google-services' version '4.4.4' apply false
-
+    // Firebase Google Services plugin (required)
+    id 'com.google.gms.google-services' version '4.4.4' apply false
 }

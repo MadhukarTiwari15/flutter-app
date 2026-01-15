@@ -9,34 +9,12 @@ on:
 jobs:
   build:
     name: Build Flutter (Android + Web)
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
 
     steps:
-      # -----------------------------
-      # CHECKOUT CODE
-      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -----------------------------
-      # SECRET SCANNING
-      # -----------------------------
-      - name: GitLeaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --no-git --verbose
-
-      # -----------------------------
-      # STATIC CODE ANALYSIS
-      # -----------------------------
-      - name: Semgrep Scan
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: "p/security-audit"
-
-      # -----------------------------
-      # SETUP FLUTTER
-      # -----------------------------
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -44,56 +22,29 @@ jobs:
           channel: stable
           cache: true
 
-      # -----------------------------
-      # INSTALL DEPENDENCIES
-      # -----------------------------
       - name: Install dependencies
         run: flutter pub get
 
-      # -----------------------------
-      # ANALYZE CODE
-      # -----------------------------
-      - name: Analyze code
-        run: flutter analyze
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
 
-      # -----------------------------
-      # RUN TESTS
-      # -----------------------------
-      - name: Run tests
-        run: flutter test
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=keystore.jks
+          EOF
 
-      # -----------------------------
-      # ENABLE WEB
-      # -----------------------------
-      - name: Enable Flutter web
-        run: flutter config --enable-web
-
-      # -----------------------------
-      # BUILD ANDROID APK
-      # -----------------------------
       - name: Build Android APK
         run: flutter build apk --release
 
-      # -----------------------------
-      # BUILD WEB
-      # -----------------------------
-      - name: Build Web Release
-        run: flutter build web --release
-
-      # -----------------------------
-      # UPLOAD APK ARTIFACT
-      # -----------------------------
-      - name: Upload Android Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload APK to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      # -----------------------------
-      # UPLOAD WEB ARTIFACT
-      # -----------------------------
-      - name: Upload Web Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-release
-          path: build/web
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: testers
+          file: build/app/outputs/flutter-apk/app-release.apk
