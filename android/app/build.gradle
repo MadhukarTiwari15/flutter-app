@@ -30,13 +30,13 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.unthinkable.app2"
-    compileSdk flutter.compileSdkVersion
+    compileSdk 34
     ndkVersion flutter.ndkVersion
 
     defaultConfig {
         applicationId "com.unthinkable.app2"
         minSdk 23
-        targetSdk 33
+        targetSdk 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
