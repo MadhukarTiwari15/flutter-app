@@ -35,8 +35,8 @@ android {
 
     defaultConfig {
         applicationId "com.unthinkable.app2"
-        minSdk flutter.minSdkVersion
-        targetSdk flutter.targetSdkVersion
+        minSdk 21 
+        targetSdk 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
