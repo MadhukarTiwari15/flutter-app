@@ -28,7 +28,7 @@ jobs:
           flutter-version: '3.19.0'
           channel: stable
           cache: true
-          
+
       - name: Clean Flutter build
         run: flutter clean
 
@@ -56,13 +56,7 @@ jobs:
           storeFile=keystore.jks
           EOF
 
-      # ADD THIS: Clear Gradle cache to force rebuild with new Kotlin version
-      - name: Clean Gradle cache
-        run: |
-          cd android
-          ./gradlew clean --no-daemon
-          cd ..
-          flutter clean
+
 
       - name: Build Android APK
         run: flutter build apk --release
