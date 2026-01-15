@@ -1,0 +1,98 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Flutter (Android + Web)
+    runs-on: self-hosted
+
+    steps:
+      # -----------------------------
+      # CHECKOUT CODE
+      # -----------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- 1. SECRET SCANNING ---
+      - name: GitLeaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --no-git --verbose
+
+      # -----------------------------
+      # STATIC CODE ANALYSIS (SEMgrep)
+      # -----------------------------
+      - name: Semgrep Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "p/security-audit"
+
+      # -----------------------------
+      # SETUP FLUTTER
+      # -----------------------------
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: stable
+          cache: true
+
+      # -----------------------------
+      # INSTALL DEPENDENCIES
+      # -----------------------------
+      - name: Install dependencies
+        run: flutter pub get
+
+      # -----------------------------
+      # ANALYZE CODE
+      # -----------------------------
+      - name: Analyze code
+        run: flutter analyze
+
+      # -----------------------------
+      # RUN TESTS
+      # -----------------------------
+      - name: Run tests
+        run: flutter test
+
+      # -----------------------------
+      # ENABLE WEB PLATFORM
+      # -----------------------------
+      - name: Enable Flutter web
+        run: flutter config --enable-web
+
+      # -----------------------------
+      # BUILD ANDROID APK
+      # -----------------------------
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      # -----------------------------
+      # BUILD WEB
+      # -----------------------------
+      - name: Build Web Release
+        run: flutter build web --release
+
+      # -----------------------------
+      # -----------------------------
+      # UPLOAD APK ARTIFACT
+      # -----------------------------
+#      - name: Upload Android Artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: android-apk
+#          path: build/app/outputs/flutter-apk/app-release.apk
+#
+#      # -----------------------------
+#      # UPLOAD WEB ARTIFACT
+#      # -----------------------------
+#      - name: Upload Web Artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: web-release
+#          path: build/web
