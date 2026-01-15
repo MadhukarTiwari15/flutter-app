@@ -15,6 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+        
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -45,6 +52,14 @@ jobs:
           storeFile=keystore.jks
           EOF
 
+      # ADD THIS: Clear Gradle cache to force rebuild with new Kotlin version
+      - name: Clean Gradle cache
+        run: |
+          cd android
+          ./gradlew clean --no-daemon
+          cd ..
+          flutter clean
+          
       - name: Build Android APK
         run: flutter build apk --release
 
