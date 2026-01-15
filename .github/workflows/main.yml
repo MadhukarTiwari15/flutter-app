@@ -24,6 +24,13 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+# -----------------------------
+      # RESTORE google-services.json
+      # -----------------------------
+      - name: Restore Firebase config
+        run: |
+          mkdir -p android/app
+          echo "${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}" | base64 -d > android/app/google-services.json
 
       - name: Decode keystore
         run: |
