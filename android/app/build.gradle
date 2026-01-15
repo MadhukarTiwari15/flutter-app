@@ -29,12 +29,12 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.example.poc_multilang"
+    namespace "com.unthinkable.app2"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     defaultConfig {
-        applicationId "com.example.poc_multilang"
+        applicationId "com.unthinkable.app2"
         minSdk flutter.minSdkVersion
         targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
