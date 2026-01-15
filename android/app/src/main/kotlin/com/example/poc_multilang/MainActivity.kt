@@ -1,4 +1,4 @@
-package com.example.poc_multilang
+package com.unthinkable.app2
 
 import io.flutter.embedding.android.FlutterActivity
 
